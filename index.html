@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="dark">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -18,24 +18,54 @@
     </div>
   </div>
 
+  <!-- COMMAND PALETTE -->
+  <div id="cmd-overlay" class="hidden">
+    <div id="cmd-palette">
+      <div id="cmd-header">
+        <span>⌘</span>
+        <input id="cmd-input" placeholder="Type a command or section..." autocomplete="off" />
+        <span class="cmd-esc" onclick="closeCmd()">ESC</span>
+      </div>
+      <div id="cmd-list"></div>
+    </div>
+  </div>
+
   <!-- MAIN APP -->
   <div id="app" style="display:none">
 
     <!-- NAV -->
     <nav id="navbar">
       <div class="nav-logo">AX<span>I</span>OM</div>
-      <div class="nav-links">
+      <div class="nav-links" id="nav-links">
         <a href="#hero">HOME</a>
         <a href="#monitor">MONITOR</a>
         <a href="#faults">SIMULATE</a>
         <a href="#results">RESULTS</a>
-        <a href="#neural">NEURAL NET</a>
-        <a href="#stream">LIVE STREAM</a>
+        <a href="#neural">NEURAL</a>
+        <a href="#stream">STREAM</a>
         <a href="#chat-section">AI CHAT</a>
         <a href="#about">ABOUT</a>
       </div>
-      <div class="nav-status"><span class="pulse-dot"></span>SYSTEM ONLINE</div>
+      <div class="nav-actions">
+        <button class="nav-btn" onclick="toggleTheme()" id="theme-btn" title="Toggle theme">☀</button>
+        <button class="nav-btn" onclick="openCmd()" title="Command palette (/)">⌘</button>
+        <button class="nav-btn" onclick="exportPDF()" title="Export PDF">⬇</button>
+        <div class="nav-status"><span class="pulse-dot"></span><span class="status-text">ONLINE</span></div>
+        <button class="hamburger" id="hamburger" onclick="toggleMenu()">☰</button>
+      </div>
     </nav>
+
+    <!-- MOBILE MENU -->
+    <div id="mobile-menu" class="hidden">
+      <a href="#hero" onclick="toggleMenu()">HOME</a>
+      <a href="#monitor" onclick="toggleMenu()">MONITOR</a>
+      <a href="#faults" onclick="toggleMenu()">SIMULATE</a>
+      <a href="#results" onclick="toggleMenu()">RESULTS</a>
+      <a href="#neural" onclick="toggleMenu()">NEURAL NET</a>
+      <a href="#stream" onclick="toggleMenu()">LIVE STREAM</a>
+      <a href="#chat-section" onclick="toggleMenu()">AI CHAT</a>
+      <a href="#about" onclick="toggleMenu()">ABOUT</a>
+    </div>
 
     <!-- HERO -->
     <section id="hero">
@@ -55,7 +85,9 @@
         <div class="hero-btns">
           <button class="btn-primary" onclick="document.getElementById('monitor').scrollIntoView({behavior:'smooth'})">LAUNCH MONITOR</button>
           <button class="btn-ghost" onclick="document.getElementById('faults').scrollIntoView({behavior:'smooth'})">RUN SIMULATION</button>
+          <button class="btn-ghost" onclick="exportPDF()">EXPORT REPORT ⬇</button>
         </div>
+        <div class="cmd-hint">Press <kbd>/</kbd> or <kbd>Cmd+K</kbd> to open command palette</div>
       </div>
     </section>
 
@@ -120,7 +152,7 @@
       <div class="section-header">
         <div class="section-tag">SECTION 05</div>
         <h2>NEURAL NETWORK ARCHITECTURE</h2>
-        <p>Live 3D visualization of the AXIOM fault detection model</p>
+        <p>Live visualization of the AXIOM fault detection model</p>
       </div>
       <div class="neural-wrap">
         <canvas id="neural-canvas"></canvas>
@@ -183,7 +215,7 @@
         <p class="about-paper">Research Paper: <em>"Fault Detection in TEP using Neural Networks"</em></p>
         <div class="about-btns">
           <a href="https://linkedin.com" target="_blank" class="btn-linkedin">🔗 LinkedIn</a>
-          <a href="https://github.com" target="_blank" class="btn-github">⌥ GitHub</a>
+          <a href="https://github.com/pakhi15-ui" target="_blank" class="btn-github">⌥ GitHub</a>
         </div>
         <div class="about-footer">AXIOM v4.2.1 · © 2025 Pakhi · Built with HTML + CSS + JS</div>
       </div>
