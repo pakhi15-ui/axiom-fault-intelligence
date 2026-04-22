@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>AXIOM — Fault Intelligence System</title>
+  <link href="https://fonts.googleapis.com/css2?family=Share+Tech+Mono&family=Orbitron:wght@400;700;900&family=Rajdhani:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- BOOT SCREEN -->
+  <div id="boot">
+    <div id="boot-lines"></div>
+    <div id="boot-bar-wrap">
+      <div id="boot-label">INITIALIZING AXIOM CORE...</div>
+      <div id="boot-bar"><div id="boot-fill"></div></div>
+    </div>
+  </div>
+
+  <!-- MAIN APP -->
+  <div id="app" style="display:none">
+
+    <!-- NAV -->
+    <nav id="navbar">
+      <div class="nav-logo">AX<span>I</span>OM</div>
+      <div class="nav-links">
+        <a href="#hero">HOME</a>
+        <a href="#monitor">MONITOR</a>
+        <a href="#faults">SIMULATE</a>
+        <a href="#results">RESULTS</a>
+        <a href="#neural">NEURAL NET</a>
+        <a href="#stream">LIVE STREAM</a>
+        <a href="#chat-section">AI CHAT</a>
+        <a href="#about">ABOUT</a>
+      </div>
+      <div class="nav-status"><span class="pulse-dot"></span>SYSTEM ONLINE</div>
+    </nav>
+
+    <!-- HERO -->
+    <section id="hero">
+      <div class="hero-bg-grid"></div>
+      <canvas id="particle-canvas"></canvas>
+      <div class="hero-content">
+        <div class="hero-tag">INDUSTRIAL AI · REAL-TIME FAULT DETECTION</div>
+        <h1 class="hero-title" id="glitch-title" data-text="AXIOM">AXIOM</h1>
+        <p class="hero-sub">Fault Intelligence System</p>
+        <p class="hero-desc">Neural network-powered fault detection across 52 TEP process sensors.<br>Real-time classification · 99.84% accuracy · 21 fault types</p>
+        <div class="hero-stats">
+          <div class="stat-box"><span class="stat-num" data-target="9984">0</span><span class="stat-unit">%</span><div class="stat-label">Accuracy</div></div>
+          <div class="stat-box"><span class="stat-num" data-target="52">0</span><span class="stat-unit"></span><div class="stat-label">Sensors</div></div>
+          <div class="stat-box"><span class="stat-num" data-target="21">0</span><span class="stat-unit"></span><div class="stat-label">Fault Types</div></div>
+          <div class="stat-box"><span class="stat-num" data-target="480">0</span><span class="stat-unit">ms</span><div class="stat-label">Detection Time</div></div>
+        </div>
+        <div class="hero-btns">
+          <button class="btn-primary" onclick="document.getElementById('monitor').scrollIntoView({behavior:'smooth'})">LAUNCH MONITOR</button>
+          <button class="btn-ghost" onclick="document.getElementById('faults').scrollIntoView({behavior:'smooth'})">RUN SIMULATION</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIVE MONITOR -->
+    <section id="monitor">
+      <div class="section-header">
+        <div class="section-tag">SECTION 02</div>
+        <h2>LIVE SENSOR MONITOR</h2>
+        <p>Real-time signals from all 52 TEP process variables</p>
+      </div>
+      <div class="monitor-grid">
+        <div class="signal-panel">
+          <div class="panel-title"><span class="dot cyan"></span>PROCESS VARIABLES — XMV</div>
+          <canvas id="canvas-xmv" width="600" height="120"></canvas>
+        </div>
+        <div class="signal-panel">
+          <div class="panel-title"><span class="dot pink"></span>MEASUREMENT VARIABLES — XMEAS</div>
+          <canvas id="canvas-xmeas" width="600" height="120"></canvas>
+        </div>
+      </div>
+      <div id="heatmap-wrap">
+        <div class="panel-title"><span class="dot purple"></span>52-SENSOR HEATMAP</div>
+        <div id="heatmap"></div>
+        <div class="heatmap-legend">
+          <span style="color:#00f5ff">LOW</span>
+          <div class="legend-bar"></div>
+          <span style="color:#ff2d78">HIGH</span>
+        </div>
+      </div>
+    </section>
+
+    <!-- FAULT SELECTOR -->
+    <section id="faults">
+      <div class="section-header">
+        <div class="section-tag">SECTION 03</div>
+        <h2>FAULT SIMULATION</h2>
+        <p>Select a fault type — watch sensors react in real time</p>
+      </div>
+      <div class="fault-layout">
+        <div class="fault-grid" id="fault-grid"></div>
+        <div class="fault-result" id="fault-result">
+          <div class="result-idle">
+            <div class="result-icon">◈</div>
+            <p>SELECT A FAULT TYPE<br>TO BEGIN SIMULATION</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RESULTS -->
+    <section id="results">
+      <div class="section-header">
+        <div class="section-tag">SECTION 04</div>
+        <h2>ACCURACY BENCHMARK</h2>
+        <p>AXIOM vs classical fault detection methods</p>
+      </div>
+      <div class="results-grid" id="results-grid"></div>
+    </section>
+
+    <!-- 3D NEURAL NETWORK -->
+    <section id="neural">
+      <div class="section-header">
+        <div class="section-tag">SECTION 05</div>
+        <h2>NEURAL NETWORK ARCHITECTURE</h2>
+        <p>Live 3D visualization of the AXIOM fault detection model</p>
+      </div>
+      <div class="neural-wrap">
+        <canvas id="neural-canvas"></canvas>
+        <div class="neural-info">
+          <div class="ni-row"><span>INPUT LAYER</span><span class="ni-val">52 neurons</span></div>
+          <div class="ni-row"><span>HIDDEN LAYER 1</span><span class="ni-val">128 neurons</span></div>
+          <div class="ni-row"><span>HIDDEN LAYER 2</span><span class="ni-val">64 neurons</span></div>
+          <div class="ni-row"><span>HIDDEN LAYER 3</span><span class="ni-val">32 neurons</span></div>
+          <div class="ni-row"><span>OUTPUT LAYER</span><span class="ni-val">21 classes</span></div>
+          <div class="ni-divider"></div>
+          <div class="ni-row"><span>TOTAL PARAMS</span><span class="ni-val cyan">48,320</span></div>
+          <div class="ni-row"><span>OPTIMIZER</span><span class="ni-val cyan">Adam</span></div>
+          <div class="ni-row"><span>ACTIVATION</span><span class="ni-val cyan">ReLU + Softmax</span></div>
+          <div class="ni-row"><span>ACCURACY</span><span class="ni-val pink">99.84%</span></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- LIVE STREAM -->
+    <section id="stream">
+      <div class="section-header">
+        <div class="section-tag">SECTION 06</div>
+        <h2>LIVE PREDICTION STREAM</h2>
+        <p>Real-time fault probability feed — updating every second</p>
+      </div>
+      <div class="stream-layout">
+        <div class="stream-feed" id="stream-feed"></div>
+        <div class="stream-probs" id="stream-probs"></div>
+      </div>
+    </section>
+
+    <!-- AI CHAT -->
+    <section id="chat-section">
+      <div class="section-header">
+        <div class="section-tag">SECTION 07</div>
+        <h2>AXIOM AI ASSISTANT</h2>
+        <p>Ask anything about faults, sensors, or the TEP process</p>
+      </div>
+      <div class="chat-container">
+        <div class="chat-window" id="chat-window">
+          <div class="chat-msg ai">
+            <span class="chat-sender">AXIOM</span>
+            <p>System online. I am AXIOM — your fault intelligence assistant. Ask me about any fault type, sensor readings, or the Tennessee Eastman Process.</p>
+          </div>
+        </div>
+        <div class="chat-input-row">
+          <input type="text" id="chat-input" class="chat-input" placeholder="Ask AXIOM about faults, sensors, accuracy..." />
+          <button class="chat-send" id="chat-send">SEND ◈</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section id="about">
+      <div class="about-card">
+        <div class="about-glow"></div>
+        <div class="about-tag">BUILT BY</div>
+        <h2 class="about-name">Pakhi</h2>
+        <p class="about-desc">AI/ML Researcher · Industrial Fault Detection · Deep Learning</p>
+        <p class="about-paper">Research Paper: <em>"Fault Detection in TEP using Neural Networks"</em></p>
+        <div class="about-btns">
+          <a href="https://linkedin.com" target="_blank" class="btn-linkedin">🔗 LinkedIn</a>
+          <a href="https://github.com" target="_blank" class="btn-github">⌥ GitHub</a>
+        </div>
+        <div class="about-footer">AXIOM v4.2.1 · © 2025 Pakhi · Built with HTML + CSS + JS</div>
+      </div>
+    </section>
+
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
