@@ -98,7 +98,6 @@ const bootLines = [
   "Initializing CSV upload engine.............. [OK]",
   "Starting anomaly scoring engine............. [OK]",
   "Mounting time-series analyzer............... [OK]",
-  "Building confusion matrix renderer.......... [OK]",
   "Loading command palette..................... [OK]",
   "Accuracy benchmark: 99.84%.................. [VERIFIED]",
   "Universal platform ready. Launching AXIOM...",
@@ -145,7 +144,6 @@ function initApp() {
   initNeuralNet();
   initAnomalyScoring();
   initTimeSeries();
-  initConfusionMatrix();
   initUpload();
   initChat();
   initCommandPalette();
@@ -172,7 +170,6 @@ function switchProcess(proc) {
   document.getElementById('ni-acc').textContent = p.accuracy + '%';
   rebuildHeatmap(p.sensors);
   rebuildFaults(p.faultList);
-  rebuildConfusion(p.faultList);
 }
 
 function rebuildHeatmap(count) {
@@ -215,7 +212,6 @@ const commands = [
   {icon:'🚨',label:'Anomaly Scoring',desc:'Real-time alert system',action:()=>scrollTo('anomaly')},
   {icon:'📈',label:'Time Series',desc:'Zoomable timeline',action:()=>scrollTo('timeseries')},
   {icon:'⚡',label:'Fault Simulation',desc:'Select & simulate',action:()=>scrollTo('faults')},
-  {icon:'🔲',label:'Confusion Matrix',desc:'Per-fault accuracy',action:()=>scrollTo('confusion')},
   {icon:'📊',label:'Benchmark',desc:'Accuracy comparison',action:()=>scrollTo('results')},
   {icon:'🧠',label:'Neural Network',desc:'Architecture viewer',action:()=>scrollTo('neural')},
   {icon:'📂',label:'Upload CSV',desc:'Analyze your data',action:()=>scrollTo('upload')},
@@ -437,44 +433,31 @@ function updateAnomaly() {
   if (scoreHistory.length > 60) scoreHistory.shift();
   peakScore = Math.max(peakScore, score);
   const avg = scoreHistory.reduce((a,b)=>a+b,0) / scoreHistory.length;
-
   drawGauge(score);
   document.getElementById('gauge-score').textContent = score.toFixed(2);
   const statusEl = document.getElementById('gauge-status');
   if (score > anomalyThreshold) {
-    statusEl.textContent = 'ANOMALY';
-    statusEl.style.color = '#ff2d78';
-    alertsFired++;
-    fireAlert(score);
-    addAnomalyHistory(score, true);
+    statusEl.textContent = 'ANOMALY'; statusEl.style.color = '#ff2d78';
+    alertsFired++; fireAlert(score); addAnomalyHistory(score, true);
   } else if (score > anomalyThreshold * 0.7) {
-    statusEl.textContent = 'WARNING';
-    statusEl.style.color = '#ffcc00';
+    statusEl.textContent = 'WARNING'; statusEl.style.color = '#ffcc00';
     addAnomalyHistory(score, false);
   } else {
-    statusEl.textContent = 'NOMINAL';
-    statusEl.style.color = '#00ff88';
+    statusEl.textContent = 'NOMINAL'; statusEl.style.color = '#00ff88';
   }
-
   document.getElementById('astat-alerts').textContent = alertsFired;
   document.getElementById('astat-peak').textContent = peakScore.toFixed(2);
   document.getElementById('astat-avg').textContent = avg.toFixed(2);
 }
 
 function drawGauge(value) {
-  const canvas = document.getElementById('gauge-canvas');
-  if (!canvas) return;
+  const canvas = document.getElementById('gauge-canvas'); if (!canvas) return;
   const ctx = canvas.getContext('2d');
   const W = 300, H = 300, cx = 150, cy = 170, r = 110;
   ctx.clearRect(0, 0, W, H);
-  const startAngle = Math.PI * 0.75;
-  const endAngle = Math.PI * 2.25;
-
-  // background arc
+  const startAngle = Math.PI * 0.75, endAngle = Math.PI * 2.25;
   ctx.beginPath(); ctx.arc(cx,cy,r,startAngle,endAngle);
   ctx.strokeStyle='rgba(255,255,255,0.08)'; ctx.lineWidth=16; ctx.lineCap='round'; ctx.stroke();
-
-  // value arc
   const valueAngle = startAngle + (endAngle - startAngle) * value;
   const grad = ctx.createLinearGradient(cx-r,cy,cx+r,cy);
   grad.addColorStop(0,'#00f5ff'); grad.addColorStop(0.5,'#b537f2'); grad.addColorStop(1,'#ff2d78');
@@ -482,8 +465,6 @@ function drawGauge(value) {
   ctx.strokeStyle=grad; ctx.lineWidth=16; ctx.lineCap='round';
   ctx.shadowBlur=20; ctx.shadowColor=value>anomalyThreshold?'#ff2d78':'#00f5ff';
   ctx.stroke(); ctx.shadowBlur=0;
-
-  // tick marks
   for (let i=0; i<=10; i++) {
     const angle = startAngle + (endAngle-startAngle)*(i/10);
     const x1=cx+Math.cos(angle)*(r-22), y1=cy+Math.sin(angle)*(r-22);
@@ -491,8 +472,6 @@ function drawGauge(value) {
     ctx.beginPath(); ctx.moveTo(x1,y1); ctx.lineTo(x2,y2);
     ctx.strokeStyle='rgba(255,255,255,0.2)'; ctx.lineWidth=1; ctx.stroke();
   }
-
-  // threshold marker
   const thAngle = startAngle + (endAngle-startAngle)*anomalyThreshold;
   ctx.beginPath();
   ctx.moveTo(cx+Math.cos(thAngle)*(r-30),cy+Math.sin(thAngle)*(r-30));
@@ -526,28 +505,23 @@ let tsWindowSize = 60;
 let tsColors = ['#00f5ff','#ff2d78','#b537f2'];
 
 function initTimeSeries() {
-  const canvas = document.getElementById('ts-canvas');
-  if (!canvas) return;
+  const canvas = document.getElementById('ts-canvas'); if (!canvas) return;
   const ctx = canvas.getContext('2d');
   canvas.width = canvas.parentElement.offsetWidth - 40 || 800;
   canvas.height = 280;
-
-  // seed data
   for (let i = 0; i < tsWindowSize; i++) {
     tsData[0].push(0.5 + Math.sin(i*0.15)*0.2 + Math.random()*0.1);
     tsData[1].push(0.5 + Math.cos(i*0.12)*0.25 + Math.random()*0.1);
     tsData[2].push(0.5 + Math.sin(i*0.2+1)*0.15 + Math.random()*0.08);
   }
-
   setInterval(() => {
-    tsData.forEach((d,i) => {
+    tsData.forEach(d => {
       d.push(Math.max(0.05, Math.min(0.95, d[d.length-1] + (Math.random()-0.5)*0.06)));
       if (d.length > 600) d.shift();
     });
     tsMarkers = tsMarkers.filter(m => m > tsData[0].length - tsWindowSize);
     drawTimeSeries();
   }, 500);
-
   drawTimeSeries();
 }
 
@@ -556,8 +530,6 @@ function drawTimeSeries() {
   const ctx = canvas.getContext('2d');
   const W = canvas.width, H = canvas.height;
   ctx.clearRect(0, 0, W, H);
-
-  // grid
   for (let i=0; i<=4; i++) {
     const y = (H-40) * (i/4) + 20;
     ctx.beginPath(); ctx.moveTo(40,y); ctx.lineTo(W,y);
@@ -565,11 +537,8 @@ function drawTimeSeries() {
     ctx.fillStyle='rgba(255,255,255,0.3)'; ctx.font='10px Share Tech Mono'; ctx.textAlign='right';
     ctx.fillText((1-i/4).toFixed(1), 36, y+4);
   }
-
   const len = tsData[0].length;
   const start = Math.max(0, len - tsWindowSize);
-
-  // fault markers
   tsMarkers.forEach(m => {
     const relPos = m - start;
     if (relPos < 0 || relPos >= tsWindowSize) return;
@@ -580,8 +549,6 @@ function drawTimeSeries() {
     ctx.fillStyle='#ffcc00'; ctx.font='9px Share Tech Mono'; ctx.textAlign='center';
     ctx.fillText('FAULT',x,16);
   });
-
-  // signal lines
   tsData.forEach((data, di) => {
     ctx.beginPath(); ctx.strokeStyle=tsColors[di]; ctx.lineWidth=1.5;
     ctx.shadowBlur=6; ctx.shadowColor=tsColors[di];
@@ -600,59 +567,8 @@ function setWindow(size) {
   document.querySelectorAll('.ts-btn').forEach(b=>b.classList.remove('active'));
   event.target.classList.add('active');
 }
-
-function injectFaultMarker() {
-  tsMarkers.push(tsData[0].length - 1);
-  drawTimeSeries();
-}
-
+function injectFaultMarker() { tsMarkers.push(tsData[0].length - 1); drawTimeSeries(); }
 function clearMarkers() { tsMarkers=[]; drawTimeSeries(); }
-
-// ══════════════════════════════════════════
-// CONFUSION MATRIX
-// ══════════════════════════════════════════
-function initConfusionMatrix() { rebuildConfusion(PROCESSES[currentProcess].faultList); }
-
-function rebuildConfusion(faultList) {
-  const canvas = document.getElementById('confusion-canvas'); if(!canvas) return;
-  const ctx = canvas.getContext('2d');
-  const n = Math.min(faultList.length, 8);
-  const size = 36, pad = 60;
-  canvas.width = n*size + pad;
-  canvas.height = n*size + pad;
-  ctx.clearRect(0,0,canvas.width,canvas.height);
-
-  // generate fake confusion matrix
-  const matrix = Array.from({length:n},(_,i)=>Array.from({length:n},(_,j)=>{ if(i===j) return 85+Math.floor(Math.random()*15); return Math.floor(Math.random()*8); }));
-
-  for(let r=0;r<n;r++) for(let c=0;c<n;c++) {
-    const val=matrix[r][c]/100;
-    const x=pad+c*size, y=pad+r*size;
-    if(r===c) { ctx.fillStyle=`rgba(0,245,255,${val})`; }
-    else { ctx.fillStyle=`rgba(255,45,120,${val*0.6})`; }
-    ctx.fillRect(x,y,size-2,size-2);
-    ctx.fillStyle=val>0.4?'#fff':'rgba(255,255,255,0.5)';
-    ctx.font='9px Share Tech Mono'; ctx.textAlign='center';
-    ctx.fillText(matrix[r][c],x+size/2-1,y+size/2+3);
-  }
-
-  // labels
-  faultList.slice(0,n).forEach((f,i)=>{
-    ctx.fillStyle='rgba(255,255,255,0.4)'; ctx.font='9px Share Tech Mono'; ctx.textAlign='right';
-    ctx.fillText(`F${i}`,pad-4,pad+i*size+size/2+3);
-    ctx.textAlign='center';
-    ctx.fillText(`F${i}`,pad+i*size+size/2-1,pad-6);
-  });
-
-  // per-fault accuracy in sidebar
-  const statsWrap = document.getElementById('confusion-stats'); statsWrap.innerHTML='';
-  faultList.slice(0,6).forEach(f=>{
-    const acc = f.conf;
-    const div=document.createElement('div'); div.className='cs-row';
-    div.innerHTML=`<div class="cs-fault">IDV(${f.id}) — ${f.name}</div><div class="cs-acc" style="color:${acc>97?'#00f5ff':acc>94?'#b537f2':'#ff2d78'}">${acc}%</div><div class="cs-bar"><div class="cs-fill" style="width:${acc}%"></div></div>`;
-    statsWrap.appendChild(div);
-  });
-}
 
 // ══════════════════════════════════════════
 // CSV UPLOAD
@@ -676,18 +592,13 @@ function handleFile(file) {
     const lines = e.target.result.split('\n').filter(l=>l.trim());
     const headers = lines[0].split(',');
     const rows = lines.slice(1).map(l=>l.split(',').map(Number)).filter(r=>r.length>1);
-    const numCols = headers.length;
-    const numRows = rows.length;
-
+    const numCols = headers.length, numRows = rows.length;
     document.getElementById('upload-result').classList.remove('hidden');
     document.getElementById('ur-filename').textContent = file.name;
-
     document.getElementById('ur-stats').innerHTML=`
       <div class="ur-stat"><div class="ur-stat-n">${numRows}</div><div class="ur-stat-l">ROWS</div></div>
       <div class="ur-stat"><div class="ur-stat-n">${numCols}</div><div class="ur-stat-l">COLUMNS</div></div>
       <div class="ur-stat"><div class="ur-stat-n">${(file.size/1024).toFixed(1)}KB</div><div class="ur-stat-l">SIZE</div></div>`;
-
-    // draw preview chart
     const canvas = document.getElementById('upload-canvas');
     const ctx = canvas.getContext('2d');
     canvas.width = canvas.parentElement.offsetWidth - 48 || 400;
@@ -700,8 +611,6 @@ function handleFile(file) {
     ctx.beginPath();
     vals.forEach((v,i)=>{ const x=(i/(vals.length-1))*(canvas.width); const y=20+(1-(v-mn)/(mx-mn||1))*(canvas.height-40); i===0?ctx.moveTo(x,y):ctx.lineTo(x,y); });
     ctx.stroke();
-
-    // analysis
     const faultCol = rows.map(r=>r[r.length-1]).filter(v=>!isNaN(v));
     const uniqueFaults = [...new Set(faultCol)];
     document.getElementById('ur-analysis').innerHTML=`
@@ -714,7 +623,7 @@ function handleFile(file) {
 }
 
 // ══════════════════════════════════════════
-// AI CHAT
+// AI CHAT — calls /api/chat proxy
 // ══════════════════════════════════════════
 function initChat(){
   const chatWindow=document.getElementById('chat-window');
@@ -726,11 +635,11 @@ function initChat(){
     appendMessage('user','YOU',text); chatInput.value=''; chatSend.disabled=true;
     const typingEl=appendMessage('ai','AXIOM','⬛ Analyzing...',true);
     try{
-      const res=await fetch('https://api.anthropic.com/v1/messages',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:systemPrompt,messages:[{role:'user',content:text}]})});
+      const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:systemPrompt,messages:[{role:'user',content:text}]})});
       const data=await res.json();
       typingEl.querySelector('p').textContent=data.content?.[0]?.text||'Signal lost.';
       typingEl.classList.remove('chat-typing');
-    }catch(e){ typingEl.querySelector('p').textContent='Run via: npx serve . for AI chat.'; }
+    }catch(e){ typingEl.querySelector('p').textContent='AI chat error. Check /api/chat is deployed.'; }
     chatSend.disabled=false; chatWindow.scrollTop=chatWindow.scrollHeight;
   }
   function appendMessage(type,sender,text,isTyping=false){
