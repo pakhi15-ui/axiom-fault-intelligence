@@ -635,9 +635,9 @@ function initChat(){
     appendMessage('user','YOU',text); chatInput.value=''; chatSend.disabled=true;
     const typingEl=appendMessage('ai','AXIOM','⬛ Analyzing...',true);
     try{
-      const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({model:'claude-sonnet-4-20250514',max_tokens:1000,system:systemPrompt,messages:[{role:'user',content:text}]})});
+      const res=await fetch('/api/chat',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({messages:[{role:'system',content:systemPrompt},{role:'user',content:text}]})});
       const data=await res.json();
-      typingEl.querySelector('p').textContent=data.content?.[0]?.text||'Signal lost.';
+      typingEl.querySelector('p').textContent=data.choices?.[0]?.message?.content||'Signal lost.';
       typingEl.classList.remove('chat-typing');
     }catch(e){ typingEl.querySelector('p').textContent='AI chat error. Check /api/chat is deployed.'; }
     chatSend.disabled=false; chatWindow.scrollTop=chatWindow.scrollHeight;
